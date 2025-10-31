@@ -90,10 +90,18 @@ const StructuredResultDisplay: React.FC<{ result: AnalysisResult }> = ({ result 
         }
     }, [keyDates]);
 
+    const getRiskColor = (risk: string) => {
+        switch (risk?.toLowerCase()) {
+            case 'high': return 'text-red-400';
+            case 'medium': return 'text-yellow-400';
+            case 'low': return 'text-green-400';
+            default: return 'text-gray-400';
+        }
+    };
 
     const formatKeyDateText = (item: KeyDate) => `${item.date}: ${item.description}`;
     const formatNextStepText = (item: ActionableNextStep) => `${item.category}: ${item.step}`;
-    const formatRedFlagText = (item: RedFlagClause) => `Clause: ${item.clause}\nExplanation: ${item.explanation}\nRisk: ${item.risk}`;
+    const formatRedFlagText = (item: RedFlagClause) => `Clause: "${item.clause}"\n\nExplanation: ${item.explanation}\nPotential Risk: ${item.risk}`;
 
     return (
         <div className="space-y-6">
@@ -192,13 +200,20 @@ const StructuredResultDisplay: React.FC<{ result: AnalysisResult }> = ({ result 
                 <Section icon={<RedFlagIcon className="w-6 h-6"/>} title="Clauses & Red Flags">
                     <ul className="space-y-4">
                         {redFlags.map((item, index) => (
-                            <li key={index} className="p-3 rounded-md bg-gray-900/50">
-                                <div className="flex items-center justify-between mb-2">
-                                    <p className="font-semibold text-red-400">{item.clause}</p>
+                            <li key={index} className="relative p-4 rounded-lg bg-gray-900/50">
+                                <div className="absolute top-2 right-2">
                                     <CopyButton textToCopy={formatRedFlagText(item)} />
                                 </div>
-                                <p className="text-sm text-gray-400"><strong className="text-gray-300">Explanation:</strong> {item.explanation}</p>
-                                <p className="text-sm text-gray-400 mt-1"><strong className="text-gray-300">Potential Risk:</strong> {item.risk}</p>
+                                <blockquote className="border-l-4 border-red-500/80 pl-4 pr-8">
+                                    <p className="italic text-gray-300">"{item.clause}"</p>
+                                </blockquote>
+                                <div className="mt-4">
+                                    <h4 className="text-sm font-semibold text-gray-200">Our Analysis:</h4>
+                                    <p className="text-sm text-gray-400 mt-1">{item.explanation}</p>
+                                    <p className="text-sm mt-2">
+                                        <strong className="text-gray-300">Potential Risk:</strong> <span className={`${getRiskColor(item.risk)} font-medium`}>{item.risk}</span>
+                                    </p>
+                                </div>
                                 <ClauseRewrite clause={item} />
                             </li>
                         ))}
