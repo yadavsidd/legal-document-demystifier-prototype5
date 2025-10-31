@@ -30,7 +30,7 @@ const analysisResultSchema = {
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    clause: { type: Type.STRING, description: "The exact, verbatim text of the problematic clause from the document." },
+                    clause: { type: Type.STRING, description: "The exact text or a summary of the clause in question." },
                     explanation: { type: Type.STRING, description: "A simple explanation of why this clause is a potential red flag." },
                     risk: { type: Type.STRING, description: "The potential risk associated with the clause, e.g., 'High', 'Medium', 'Low'." }
                 },
