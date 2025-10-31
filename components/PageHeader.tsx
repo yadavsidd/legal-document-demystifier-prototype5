@@ -1,0 +1,56 @@
+
+import React from 'react';
+import type { Page } from '../types';
+import { DemystifierIcon, TranslatorIcon, DrafterIcon, GuideIcon, HistoryIcon } from './icons';
+
+interface PageHeaderProps {
+  currentPage: Page;
+}
+
+const pageDetails: Record<string, { title: string; description: string; icon: React.ReactNode }> = {
+  demystifier: {
+    title: 'Document Demystifier',
+    description: 'Upload a document to get a simple summary, identify red flags, and understand key clauses.',
+    icon: <DemystifierIcon className="w-10 h-10" />
+  },
+  translator: {
+    title: 'Document Translator',
+    description: 'Instantly translate your documents into various languages while preserving context.',
+    icon: <TranslatorIcon className="w-10 h-10" />
+  },
+  drafter: {
+    title: 'Contract Drafter',
+    description: 'Generate basic contracts by filling out a form with your key details.',
+    icon: <DrafterIcon className="w-10 h-10" />
+  },
+  guide: {
+    title: 'Document Guide',
+    description: 'Get step-by-step assistance with official procedures like passport applications or visa requirements.',
+    icon: <GuideIcon className="w-10 h-10" />
+  },
+  history: {
+    title: 'Analysis History',
+    description: 'Review your past document analyses at any time.',
+    icon: <HistoryIcon className="w-10 h-10" />
+  },
+};
+
+const PageHeader: React.FC<PageHeaderProps> = ({ currentPage }) => {
+  const details = pageDetails[currentPage];
+
+  if (!details) return null;
+
+  return (
+    <div className="flex items-center space-x-4 mb-8">
+        <div className="flex-shrink-0 p-3 rounded-lg bg-gray-800/50 border border-gray-800 text-cyan-400">
+            {details.icon}
+        </div>
+        <div>
+            <h1 className="text-2xl font-bold text-white">{details.title}</h1>
+            <p className="text-gray-400 mt-1">{details.description}</p>
+        </div>
+    </div>
+  );
+};
+
+export default PageHeader;
