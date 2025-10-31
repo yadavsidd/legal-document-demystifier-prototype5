@@ -110,7 +110,7 @@ export const analyzeDocument = async (content: string, mimeType: string): Promis
     try {
         const response: GenerateContentResponse = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: parts,
+            contents: { parts },
             config: {
                 systemInstruction,
                 responseMimeType: "application/json",
@@ -118,7 +118,10 @@ export const analyzeDocument = async (content: string, mimeType: string): Promis
             }
         });
         
-        const jsonText = response.text.trim();
+        const jsonText = response.text?.trim();
+        if (!jsonText) {
+            throw new Error("Received an empty or invalid response from the AI model.");
+        }
         const result = JSON.parse(jsonText);
         
         // Basic validation to ensure the result matches the expected structure
@@ -279,7 +282,7 @@ export const suggestClauseRewrite = async (clause: string, explanation: string):
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
-        return response.text.trim();
+        return response.text?.trim() ?? '';
     } catch (error) {
         console.error("Error suggesting clause rewrite:", error);
         throw new Error("Failed to generate a suggestion. Please try again.");
@@ -333,9 +336,9 @@ export const translateDocument = async (content: string, mimeType: string, targe
     try {
         const response: GenerateContentResponse = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: parts
+            contents: { parts }
         });
-        return response.text.trim();
+        return response.text?.trim() ?? '';
     } catch (error) {
         console.error("Error translating document:", error);
         throw new Error("Failed to translate the document. Please try again.");

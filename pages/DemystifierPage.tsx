@@ -145,7 +145,7 @@ const DemystifierPage: React.FC<DemystifierPageProps> = ({ historyItem, onViewHi
             setConversation(prev => [...prev, { role: 'model', content: '' }]);
 
             for await (const chunk of responseStream) {
-                modelResponse += chunk.text;
+                modelResponse += chunk.text ?? '';
                 setConversation(prev => {
                     const newConversation = [...prev];
                     const lastMessage = newConversation[newConversation.length - 1];

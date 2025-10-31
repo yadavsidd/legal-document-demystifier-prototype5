@@ -107,7 +107,7 @@ const ContractDrafterPage: React.FC<ContractDrafterPageProps> = ({ historyItem, 
         try {
             const stream = await draftContractStream(selectedContract.name, formData);
             for await (const chunk of stream) {
-                fullText += chunk.text;
+                fullText += chunk.text ?? '';
                 setDraftedContract(fullText);
             }
             saveHistoryItem({
