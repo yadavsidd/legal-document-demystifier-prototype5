@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getHistory } from '../services/historyService';
+import { authService } from '../services/authService';
 import type { HistoryItem, Page } from '../types';
 import { HistoryIcon, DemystifierIcon, TranslatorIcon, DrafterIcon, GuideIcon } from '../components/icons';
 
@@ -41,9 +42,14 @@ const HistoryItemCard: React.FC<{ item: HistoryItem, onView: (item: HistoryItem)
         }
     }
 
+    const handleClick = () => {
+      console.log('History item clicked:', item.type, item); // Debug
+      onView(item);
+    };
+
     return (
         <div
-          onClick={() => onView(item)}
+          onClick={handleClick}
           className="flex items-center p-4 rounded-lg bg-gray-800/50 border border-gray-800 cursor-pointer hover:bg-gray-800 hover:border-cyan-500/50 transform hover:-translate-y-0.5 transition-all duration-200"
         >
             {getIcon()}
@@ -62,8 +68,20 @@ const HistoryItemCard: React.FC<{ item: HistoryItem, onView: (item: HistoryItem)
 const HistoryPage: React.FC<HistoryPageProps> = ({ onViewHistoryItem, onNavigate }) => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
+  const loadHistory = () => {
+    const user = authService.getUser();
+    const userId = user?.id || null;
+    setHistory(getHistory(userId));
+  };
+
   useEffect(() => {
-    setHistory(getHistory());
+    loadHistory();
+    // Refresh history every 2 seconds when page is visible (for real-time updates)
+    const interval = setInterval(() => {
+      loadHistory();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (

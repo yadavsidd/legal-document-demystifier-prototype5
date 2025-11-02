@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { Chat } from '@google/genai';
 import { analyzeDocument, createDocumentAnalysisChat } from '../services/geminiService';
 import { saveHistoryItem } from '../services/historyService';
+import { authService } from '../services/authService';
 import type { Message, AnalysisResult, HistoryItem, AnalysisHistoryItem } from '../types';
 import FileInput from '../components/FileInput';
 import SubmitButton from '../components/SubmitButton';
@@ -66,11 +67,8 @@ const DemystifierPage: React.FC<DemystifierPageProps> = ({ historyItem, onViewHi
             setView('result');
             setConversation([{ role: 'model', content: "This is an analysis from your history. Follow-up chat is not available for historical items." }]);
         }
-        // Clear history item after use
-        return () => {
-            onViewHistoryItem(null);
-        };
-    }, [historyItem, onViewHistoryItem]);
+        // Don't clear history item on unmount - let SharedLayout manage it
+    }, [historyItem]);
 
     useEffect(() => {
         if (view === 'result') {
@@ -113,7 +111,8 @@ const DemystifierPage: React.FC<DemystifierPageProps> = ({ historyItem, onViewHi
         try {
             const result = await analyzeDocument(fileContent.content, fileContent.mimeType);
             setAnalysisResult(result);
-            saveHistoryItem({ type: 'analysis', fileName: selectedFile.name, analysisResult: result });
+            const user = authService.getUser();
+            saveHistoryItem({ type: 'analysis', fileName: selectedFile.name, analysisResult: result }, user?.id);
             
             const newChat = createDocumentAnalysisChat(fileContent.content, fileContent.mimeType, result);
             setChat(newChat);

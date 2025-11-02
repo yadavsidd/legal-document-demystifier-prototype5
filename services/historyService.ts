@@ -1,14 +1,22 @@
 import type { HistoryItem, HistoryItemForCreation } from '../types';
 
-const HISTORY_KEY = 'lexiplain_history';
+// Get history key based on user ID (if authenticated)
+const getHistoryKey = (userId?: string | null): string => {
+  if (userId) {
+    return `lexiplain_history_${userId}`;
+  }
+  return 'lexiplain_history'; // Fallback for non-authenticated users
+};
 
 /**
  * Retrieves the analysis history from local storage.
+ * @param userId Optional user ID to get user-specific history
  * @returns An array of HistoryItem, sorted with the most recent first.
  */
-export const getHistory = (): HistoryItem[] => {
+export const getHistory = (userId?: string | null): HistoryItem[] => {
   try {
-    const rawHistory = localStorage.getItem(HISTORY_KEY);
+    const historyKey = getHistoryKey(userId);
+    const rawHistory = localStorage.getItem(historyKey);
     if (!rawHistory) {
       return [];
     }
@@ -24,12 +32,14 @@ export const getHistory = (): HistoryItem[] => {
 /**
  * Saves a new item to the history.
  * @param item The history item to save, without an 'id' property.
+ * @param userId Optional user ID to save user-specific history
  */
 // FIX: Changed parameter type from Omit<HistoryItem, 'id'> to the new HistoryItemForCreation
 // to correctly handle discriminated union types and resolve errors at call sites.
-export const saveHistoryItem = (item: HistoryItemForCreation): void => {
+export const saveHistoryItem = (item: HistoryItemForCreation, userId?: string | null): void => {
   try {
-    const history = getHistory();
+    const historyKey = getHistoryKey(userId);
+    const history = getHistory(userId);
     
     const newHistoryItem: HistoryItem = {
       ...item,
@@ -38,7 +48,7 @@ export const saveHistoryItem = (item: HistoryItemForCreation): void => {
 
     const updatedHistory = [newHistoryItem, ...history];
 
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updatedHistory));
+    localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
   } catch (error) {
     console.error("Failed to save history item to localStorage", error);
   }

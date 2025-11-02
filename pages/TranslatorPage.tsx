@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { translateDocument } from '../services/geminiService';
 import { saveHistoryItem } from '../services/historyService';
+import { authService } from '../services/authService';
 import type { HistoryItem, TranslationHistoryItem } from '../types';
 import FileInput from '../components/FileInput';
 import LanguageSelector from '../components/LanguageSelector';
@@ -48,10 +49,8 @@ const TranslatorPage: React.FC<TranslatorPageProps> = ({ historyItem, onViewHist
             // Create a dummy file to show the name in the UI
             setSelectedFile(new File([], historyItem.fileName));
         }
-        return () => {
-            onViewHistoryItem(null);
-        }
-    }, [historyItem, onViewHistoryItem]);
+        // Don't clear history item on unmount - let SharedLayout manage it
+    }, [historyItem]);
 
 
     const handleFileSelect = useCallback(async (file: File | null) => {
@@ -90,12 +89,13 @@ const TranslatorPage: React.FC<TranslatorPageProps> = ({ historyItem, onViewHist
         try {
             const result = await translateDocument(fileContent.content, fileContent.mimeType, targetLanguage);
             setTranslatedText(result);
+            const user = authService.getUser();
             saveHistoryItem({
                 type: 'translation',
                 fileName: selectedFile.name,
                 targetLanguage,
                 translatedText: result,
-            });
+            }, user?.id);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
             setError(errorMessage);

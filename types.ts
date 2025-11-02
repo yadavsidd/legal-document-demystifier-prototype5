@@ -1,7 +1,7 @@
 // FIX: Import React to resolve namespace errors on line 52.
 import type React from 'react';
 
-export type Page = 'landing' | 'demystifier' | 'history' | 'drafter' | 'guide' | 'translator' | 'privacy';
+export type Page = 'landing' | 'demystifier' | 'history' | 'drafter' | 'guide' | 'translator' | 'privacy' | 'login' | 'signup';
 
 export interface KeyDate {
     date: string;

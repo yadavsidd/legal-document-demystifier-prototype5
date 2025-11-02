@@ -7,8 +7,13 @@ import ProductTour from '../components/ProductTour';
 // FIX: Import the reusable Navbar component
 import Navbar from '../components/Navbar';
 
+import type { User } from '../services/authService';
+
 interface LandingPageProps {
   onNavigate: (page: Page) => void;
+  isAuthenticated?: boolean;
+  user?: User | null;
+  onLogout?: () => void;
 }
 
 // FIX: Removed the local Navbar component definition, as it's now a reusable component.
@@ -32,7 +37,12 @@ const FeatureCard: React.FC<{
   </div>
 );
 
-const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ 
+  onNavigate, 
+  isAuthenticated = false,
+  user = null,
+  onLogout = () => {}
+}) => {
     const [showTour, setShowTour] = useState(false);
     
     const features = [
@@ -85,7 +95,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         <div className="relative z-10">
             <header className="fixed top-0 left-0 right-0 z-50">
                 {/* FIX: Use the imported Navbar component */}
-                <Navbar onNavigate={onNavigate} className="mt-4" />
+                <Navbar 
+                  onNavigate={onNavigate} 
+                  className="mt-4"
+                  isAuthenticated={isAuthenticated}
+                  userName={user?.name || ''}
+                  userEmail={user?.email || ''}
+                  onLogout={onLogout}
+                />
             </header>
             
             <main className="pt-40">
@@ -98,7 +115,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         Demystify uses advanced AI to demystify complex legal documents. Analyze, translate, and draft with unparalleled confidence and ease.
                     </p>
                     <button 
-                        onClick={() => onNavigate('demystifier')}
+                        onClick={() => onNavigate('signup')}
                         className="mt-10 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 relative overflow-hidden"
                     >
                          <span className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300"></span>

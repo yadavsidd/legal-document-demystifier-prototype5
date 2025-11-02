@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { Chat } from '@google/genai';
 import { createDocumentGuideChat } from '../services/geminiService';
 import { saveHistoryItem } from '../services/historyService';
+import { authService } from '../services/authService';
 import type { Message, HistoryItem, GuideHistoryItem } from '../types';
 import ConversationDisplay from '../components/ConversationDisplay';
 import ChatInput from '../components/ChatInput';
@@ -45,17 +46,18 @@ const DocumentGuidePage: React.FC<DocumentGuidePageProps> = ({ historyItem, onVi
                     const firstUserMessage = finalConversation.find(m => m.role === 'user');
                     if (firstUserMessage) {
                         const title = firstUserMessage.content.substring(0, 50) + (firstUserMessage.content.length > 50 ? '...' : '');
+                        const user = authService.getUser();
                         saveHistoryItem({
                             type: 'guide',
                             title,
                             conversation: finalConversation,
-                        });
+                        }, user?.id);
                     }
                 }
             }
-            onViewHistoryItem(null); // Clear history item on unmount
+            // Don't clear history item here - let SharedLayout manage it
         };
-    }, [historyItem, onViewHistoryItem]);
+    }, [historyItem]);
 
 
     const handleUserInput = (e: React.ChangeEvent<HTMLInputElement>) => {

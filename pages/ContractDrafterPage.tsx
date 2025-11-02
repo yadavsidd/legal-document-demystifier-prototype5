@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { ContractTypeConfig, HistoryItem, DraftHistoryItem } from '../types';
 import { draftContractStream } from '../services/geminiService';
 import { saveHistoryItem } from '../services/historyService';
+import { authService } from '../services/authService';
 import { DrafterIcon, FreelanceIcon, RentalIcon, SaleIcon } from '../components/icons';
 import SubmitButton from '../components/SubmitButton';
 import ErrorMessage from '../components/ErrorMessage';
@@ -70,10 +71,8 @@ const ContractDrafterPage: React.FC<ContractDrafterPageProps> = ({ historyItem, 
             setSelectedContract(contractConfig || null);
             setStep('result');
         }
-        return () => {
-            onViewHistoryItem(null);
-        };
-    }, [historyItem, onViewHistoryItem]);
+        // Don't clear history item on unmount - let SharedLayout manage it
+    }, [historyItem]);
 
 
     const handleSelectContract = (contract: ContractTypeConfig) => {
@@ -110,11 +109,12 @@ const ContractDrafterPage: React.FC<ContractDrafterPageProps> = ({ historyItem, 
                 fullText += chunk.text ?? '';
                 setDraftedContract(fullText);
             }
+            const user = authService.getUser();
             saveHistoryItem({
                 type: 'draft',
                 contractType: selectedContract.name,
                 draftedContract: fullText,
-            });
+            }, user?.id);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unknown error occurred.");
         } finally {
